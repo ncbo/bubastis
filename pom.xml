@@ -5,7 +5,7 @@
     <groupId>uk.ac.ebi.fgpt</groupId>
     <artifactId>bubastis</artifactId>
     <version>${revision}</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>bubastis</name>
     <url>http://www.ebi.ac.uk/efo/bubastis</url>
