@@ -54,25 +54,8 @@ java -jar bubastis.jar -ontology1 "H://disease_ontology_version_1.owl" -ontology
   java -Dorg.semanticweb.owlapi.model.parameters.ConfigurationOptions.MISSING_IMPORT_HANDLING_STRATEGY=SILENT -jar bubastis.jar ...
   ```
 
-# Releases and the Ruby gem
+# Releases
 
 Publishing a GitHub release tagged `vX.Y.Z` runs
-`.github/workflows/release.yml`, which:
-
-- builds `bubastis-X.Y.Z.jar` with Maven and smoke-tests it (`script/smoke-test`)
-- attaches the jar to the release
-- publishes the jar as the Ruby gem `ontoportal-bubastis` X.Y.Z
-
-Pushing to RubyGems uses trusted publishing, so a gem owner must register
-this repository, workflow `release.yml` and environment `rubygems` as a
-trusted publisher on rubygems.org.
-
-Ruby projects can depend on the gem instead of committing the jar:
-
-```ruby
-# gemspec or Gemfile
-gem 'ontoportal-bubastis', '~> 1.4'
-
-require 'ontoportal/bubastis'
-Ontoportal::Bubastis.jar_path # => absolute path to bubastis-X.Y.Z.jar
-```
+`.github/workflows/release.yml`, which builds `bubastis-X.Y.Z.jar` with Maven,
+smoke-tests it (`script/smoke-test`) and attaches it to the release.
