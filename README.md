@@ -35,3 +35,29 @@ java -jar bubastis.jar -ontology1 "H://obi_nov_08.owl" -ontology2 "H://obi_jan_0
 Loading one file locally and one from the web and outputting results to plain text:
 java -jar bubastis.jar -ontology1 "H://disease_ontology_version_1.owl" -ontology2 "http://www.disease.org/diseaseontology_latest.owl" -output "C://my_diff.txt" 
 ```
+
+# OntoPortal builds
+
+This fork ([ncbo/bubastis](https://github.com/ncbo/bubastis)) builds the
+command-line jar used by OntoPortal's ontology diff. It is forked from
+[agroportal/bubastis](https://github.com/agroportal/bubastis), which updated
+bubastis to OWLAPI 4.5 and Java 11.
+
+Each GitHub release tagged `vX.Y.Z` runs `.github/workflows/release.yml`, which:
+
+- builds `bubastis-X.Y.Z.jar` with Maven and smoke-tests it (`script/smoke-test`)
+- attaches the jar to the release
+- publishes the jar as the Ruby gem `ontoportal-bubastis` X.Y.Z
+
+Ruby projects depend on the gem instead of committing the jar:
+
+```ruby
+# gemspec or Gemfile
+gem 'ontoportal-bubastis', '~> 1.4'
+
+require 'ontoportal/bubastis'
+Ontoportal::Bubastis.jar_path # => absolute path to bubastis-X.Y.Z.jar
+```
+
+Bubastis exits 0 even when it cannot load an input (for example a zip or gzip
+file, or a `file://` URL), so check that the output file was written.

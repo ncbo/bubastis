@@ -1,3 +1,7 @@
 .idea
 *.iml
 target
+
+# Built jar copied in for gem packaging, and built gems
+jars/
+*.gem
