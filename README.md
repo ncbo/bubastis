@@ -8,11 +8,16 @@ application here http://www.ebi.ac.uk/fgpt/sw/bubastis/index.html.
 
 # Building
 
-The Bubasist Java library can be built using maven. 
+Bubastis needs Java 11 or later and is built with Maven:
 
 ```
-mvn clean package
+mvn clean package -DskipTests
 ```
+
+This writes `target/bubastis-<version>.jar`, which bundles its dependencies.
+The JUnit tests in `DriverTest` read files from the original author's machine,
+hence `-DskipTests`; `script/smoke-test target/bubastis-*.jar` checks a built
+jar instead.
 
 # Usage
 
@@ -36,20 +41,33 @@ Loading one file locally and one from the web and outputting results to plain te
 java -jar bubastis.jar -ontology1 "H://disease_ontology_version_1.owl" -ontology2 "http://www.disease.org/diseaseontology_latest.owl" -output "C://my_diff.txt" 
 ```
 
-# OntoPortal builds
+# Notes
 
-This fork ([ncbo/bubastis](https://github.com/ncbo/bubastis)) builds the
-command-line jar used by OntoPortal's ontology diff. It is forked from
-[agroportal/bubastis](https://github.com/agroportal/bubastis), which updated
-bubastis to OWLAPI 4.5 and Java 11.
+- Bubastis exits 0 even when it cannot load an input (for example a zip or
+  gzip file, or a `file://` URL), so check that the output file was written.
+- The diff compares only the axioms asserted in each file, not in its
+  imports, but the imports are still loaded. An import that cannot be fetched
+  (a dead host, or HTTP 429 from www.w3.org) aborts the diff. To skip such
+  imports, set OWLAPI's missing-import strategy before `-jar`:
 
-Each GitHub release tagged `vX.Y.Z` runs `.github/workflows/release.yml`, which:
+  ```
+  java -Dorg.semanticweb.owlapi.model.parameters.ConfigurationOptions.MISSING_IMPORT_HANDLING_STRATEGY=SILENT -jar bubastis.jar ...
+  ```
+
+# Releases and the Ruby gem
+
+Publishing a GitHub release tagged `vX.Y.Z` runs
+`.github/workflows/release.yml`, which:
 
 - builds `bubastis-X.Y.Z.jar` with Maven and smoke-tests it (`script/smoke-test`)
 - attaches the jar to the release
 - publishes the jar as the Ruby gem `ontoportal-bubastis` X.Y.Z
 
-Ruby projects depend on the gem instead of committing the jar:
+Pushing to RubyGems uses trusted publishing, so a gem owner must register
+this repository, workflow `release.yml` and environment `rubygems` as a
+trusted publisher on rubygems.org.
+
+Ruby projects can depend on the gem instead of committing the jar:
 
 ```ruby
 # gemspec or Gemfile
@@ -58,6 +76,3 @@ gem 'ontoportal-bubastis', '~> 1.4'
 require 'ontoportal/bubastis'
 Ontoportal::Bubastis.jar_path # => absolute path to bubastis-X.Y.Z.jar
 ```
-
-Bubastis exits 0 even when it cannot load an input (for example a zip or gzip
-file, or a `file://` URL), so check that the output file was written.

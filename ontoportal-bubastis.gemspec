@@ -12,6 +12,9 @@ jars = Dir[File.join(__dir__, 'jars', 'bubastis-*.jar')].map { |f| File.basename
 abort "expected exactly one jars/bubastis-*.jar, found #{jars.inspect}" unless jars.length == 1
 jar = jars.first
 jar_version = jar[/\Abubastis-(.+)\.jar\z/, 1]
+# Point at the repository that built the gem: GitHub Actions sets
+# GITHUB_REPOSITORY, so a fork that publishes its own release links to itself.
+repo_url = "https://github.com/#{ENV.fetch('GITHUB_REPOSITORY', 'ncbo/bubastis')}"
 
 Gem::Specification.new do |s|
   s.name        = 'ontoportal-bubastis'
@@ -20,13 +23,13 @@ Gem::Specification.new do |s|
   s.description = 'Ships the bubastis command-line jar (an OWL ontology diff tool) ' \
                   'and returns its path. Needs Java 11 or later at run time.'
   s.authors     = ['OntoPortal Alliance']
-  s.homepage    = 'https://github.com/ncbo/bubastis'
+  s.homepage    = repo_url
   s.license     = 'Apache-2.0'
   s.files       = ['lib/ontoportal/bubastis.rb', "jars/#{jar}", 'LICENCE', 'README.md']
   s.required_ruby_version = '>= 2.7'
   s.requirements << 'Java 11 or later'
   s.metadata = {
-    'source_code_uri' => 'https://github.com/ncbo/bubastis',
+    'source_code_uri' => repo_url,
     'rubygems_mfa_required' => 'true'
   }
 end

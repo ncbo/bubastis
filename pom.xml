@@ -31,7 +31,7 @@
             <!-- Builds bubastis-<version>.jar with all dependencies. The shade
                  plugin merges META-INF/services files; without that the OWL
                  API loses its parser registrations and reads every input as
-                 an empty ontology. Same setup as ncbo/owlapi_wrapper. -->
+                 an empty ontology. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

@@ -6,7 +6,7 @@ name: Release
 #
 # RubyGems uses trusted publishing (OIDC), so no API key is stored here. A
 # rubygems.org owner of ontoportal-bubastis must add a trusted publisher for
-# repository ncbo/bubastis, workflow release.yml, environment rubygems. Before
+# this repository, workflow release.yml, environment rubygems. Before
 # the first release, add it as a "pending" trusted publisher in the RubyGems
 # account settings.
 on:
