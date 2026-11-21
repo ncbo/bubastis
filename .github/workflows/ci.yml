@@ -28,7 +28,9 @@ jobs:
       - name: Smoke test the jar
         run: script/smoke-test target/bubastis-*.jar
 
+      # Uploaded even when the smoke test fails, so a broken jar can be inspected.
       - name: Upload jar
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: bubastis-jar
