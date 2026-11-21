@@ -4,21 +4,21 @@
 
     <groupId>uk.ac.ebi.fgpt</groupId>
     <artifactId>bubastis</artifactId>
-    <version>1.4.0</version>
-    <packaging>war</packaging>
+    <version>${revision}</version>
+    <packaging>jar</packaging>
 
     <name>bubastis</name>
     <url>http://www.ebi.ac.uk/efo/bubastis</url>
 
     <properties>
+        <!-- Set by the release workflow from the tag: mvn package -Drevision=X.Y.Z -->
+        <revision>1.4.1-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>11</java.version>
     </properties>
 
     <build>
-        <finalName>bubastis</finalName>
+        <finalName>bubastis-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -28,29 +28,39 @@
                     <release>11</release>
                 </configuration>
             </plugin>
+            <!-- Builds bubastis-<version>.jar with all dependencies. The shade
+                 plugin merges META-INF/services files; without that the OWL
+                 API loses its parser registrations and reads every input as
+                 an empty ontology. -->
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>uk.ac.ebi.efo.bubastis.Driver</mainClass>
-                        </manifest>
-                    </archive>
-                    <finalName>bubastis-1.4.0</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
-                        <!-- this is used for inheritance merges -->
                         <phase>package</phase>
-                        <!-- bind to the packaging phase -->
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>uk.ac.ebi.efo.bubastis.Driver</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -109,31 +119,11 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
         </dependency>
 
 
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>Sonatype repository</id>
-            <name>Sonatype's Maven repository</name>
-            <url>https://oss.sonatype.org/content/repositories/releases/</url>
-        </repository>
-
-
-        <repository>
-            <id>mvnrepository</id>
-            <url>http://repo1.maven.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-
-    </repositories>
 
 </project>

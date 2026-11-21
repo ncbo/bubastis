@@ -8,11 +8,16 @@ application here http://www.ebi.ac.uk/fgpt/sw/bubastis/index.html.
 
 # Building
 
-The Bubasist Java library can be built using maven. 
+Bubastis needs Java 11 or later and is built with Maven:
 
 ```
-mvn clean package
+mvn clean package -DskipTests
 ```
+
+This writes `target/bubastis-<version>.jar`, which bundles its dependencies.
+The JUnit tests in `DriverTest` read files from the original author's machine,
+hence `-DskipTests`; `script/smoke-test target/bubastis-*.jar` checks a built
+jar instead.
 
 # Usage
 
@@ -35,3 +40,22 @@ java -jar bubastis.jar -ontology1 "H://obi_nov_08.owl" -ontology2 "H://obi_jan_0
 Loading one file locally and one from the web and outputting results to plain text:
 java -jar bubastis.jar -ontology1 "H://disease_ontology_version_1.owl" -ontology2 "http://www.disease.org/diseaseontology_latest.owl" -output "C://my_diff.txt" 
 ```
+
+# Notes
+
+- Bubastis exits 0 even when it cannot load an input (for example a zip or
+  gzip file, or a `file://` URL), so check that the output file was written.
+- The diff compares only the axioms asserted in each file, not in its
+  imports, but the imports are still loaded. An import that cannot be fetched
+  (a dead host, or HTTP 429 from www.w3.org) aborts the diff. To skip such
+  imports, set OWLAPI's missing-import strategy before `-jar`:
+
+  ```
+  java -Dorg.semanticweb.owlapi.model.parameters.ConfigurationOptions.MISSING_IMPORT_HANDLING_STRATEGY=SILENT -jar bubastis.jar ...
+  ```
+
+# Releases
+
+Publishing a GitHub release tagged `vX.Y.Z` runs
+`.github/workflows/release.yml`, which builds `bubastis-X.Y.Z.jar` with Maven,
+smoke-tests it (`script/smoke-test`) and attaches it to the release.

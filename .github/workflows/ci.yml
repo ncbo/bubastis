@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      # The JUnit tests in DriverTest point at files on the original author's
+      # machine, so the jar is checked with the smoke test instead.
+      - name: Build jar
+        run: mvn -B clean package -DskipTests
+
+      - name: Smoke test the jar
+        run: script/smoke-test target/bubastis-*.jar
+
+      # Uploaded even when the smoke test fails, so a broken jar can be inspected.
+      - name: Upload jar
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bubastis-jar
+          path: target/bubastis-*.jar
+          if-no-files-found: error
